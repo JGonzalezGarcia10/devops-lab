@@ -4,3 +4,28 @@ services:
     build: ./docker-node
     ports:
       - "8080:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: devops
+      DB_PASSWORD: devops123
+      DB_NAME: devopsdb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: devops123
+      POSTGRES_DB: devopsdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devops -d devopsdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
